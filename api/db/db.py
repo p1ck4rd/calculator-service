@@ -20,7 +20,7 @@ class DataBase:
         try:
             self._session.add(new_result)
             self._session.commit()
-        except:
+        except BaseException:
             self._session.rollback()
             raise
         return new_result.id

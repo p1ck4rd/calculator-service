@@ -30,10 +30,10 @@ async def calc(request):
 async def result(request):
     data = await request.json()
     try:
-        result = db.get_result(data['id'])
-        if result:
-            return web.json_response({'result': result})
-    except:
+        calc_result = db.get_result(data['id'])
+        if calc_result:
+            return web.json_response({'result': calc_result})
+    except BaseException:
         raise web.HTTPBadRequest()
 
 

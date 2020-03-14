@@ -6,7 +6,8 @@ token = {
     'VAR': r'[A-Za-z_]+',
     'ADD': r'\+',
     'SUB': r'-',
-    'MUL': r'\*'
+    'MUL': r'\*',
+    'DIV': r'/'
     }
 
 Token = collections.namedtuple('Token', ['type', 'value'])
@@ -14,7 +15,7 @@ token_pattern = re.compile('|'.join(f'(?P<{name}>{pattern})'
                                     for name, pattern in token.items()))
 expression_pattern = re.compile(
     f'({token["ADD"]}|{token["SUB"]})?({token["NUM"]}|{token["VAR"]})'
-    f'(({token["ADD"]}|{token["SUB"]}|{token["MUL"]})'
+    f'(({token["ADD"]}|{token["SUB"]}|{token["MUL"]}|{token["DIV"]})'
     f'({token["NUM"]}|{token["VAR"]}))*')
 variable_pattern = re.compile(token['VAR'])
 space_pattern = re.compile(r'\s')
@@ -68,26 +69,32 @@ class ExpressionCalculator:
             return self._variables[self._current_token.value]
         return 0
 
-    def _get_mul_expr(self):
+    def _get_mul_div_expr(self):
         '''
-        mul_expr ::= mul_expr '+' add_sub_expr |
-            mul_expr '-' add_sub_expr |
-            mul_expr
+        mul_div_expr ::= atom_expr '*' mul_div_expr |
+            atom_expr '/' mul_div_expr |
+            atom_expr
         '''
         left = self._get_atom_expr()
-        while self._check('MUL'):
+        while self._check('MUL') or self._check('DIV'):
+            current_token_type = self._current_token.type
             right = self._get_atom_expr()
-            left *= right
+            if current_token_type == 'MUL':
+                left *= right
+            else:
+                left /= right
         return left
 
     def _get_add_sub_expr(self):
         '''
-        add_sub_expr ::= atom_expr '*' mul_expr | atom_expr
+        add_sub_expr ::= mul_div_expr '+' add_sub_expr |
+            mul_div_expr '-' add_sub_expr |
+            mul_div_expr
         '''
-        left = self._get_mul_expr()
+        left = self._get_mul_div_expr()
         while self._check('ADD') or self._check('SUB'):
             current_token_type = self._current_token.type
-            right = self._get_mul_expr()
+            right = self._get_mul_div_expr()
             if current_token_type == 'ADD':
                 left += right
             else:

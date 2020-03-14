@@ -27,7 +27,7 @@ def test_neg_var_expr():
 
 
 def test_missing_var_expr():
-    assert calculator.ExpressionCalculator('x') == False
+    assert calculator.ExpressionCalculator('x') is False
 
 
 def test_more_var_expr():
@@ -55,6 +55,11 @@ def test_mul_expr():
     assert exp_calc.calc() == 168.0
 
 
+def test_div_expr():
+    expr_calc = calculator.ExpressionCalculator('x/y', {'x': 42, 'y': 4})
+    assert expr_calc.calc() == 10.5
+
+
 def test_add_mul_expr():
     exp_calc = calculator.ExpressionCalculator('x+y*z', {
         'x': 42,
@@ -74,4 +79,4 @@ def test_mul_add_expr():
 
 
 def test_invalid_expr():
-    assert calculator.ExpressionCalculator('x.y', {'x': 42, 'y': 23}) == False
+    assert calculator.ExpressionCalculator('x.y', {'x': 42, 'y': 23}) is False
